@@ -3,40 +3,36 @@
  * travelling-salesperson problem.  A deme is a population of individuals.
  */
 
+#include "cities.hh"
 #include "chromosome.hh"
 #include "deme.hh"
+
 #include <algorithm>
-//#include <numeric>
-#include <chrono>
 #include <cassert>
+#include <numeric>
+#include <random>
 
-using vec_size_t = std::vector<Chromosome*>::size_type;
-
-Chromosome* mut_decider(double rand, Chromosome* chromosome_ptr, double mut_rate);
-double frac(std::default_random_engine generator){ return double(generator()) / double(generator.max()); }
-
-//Deme Members
-
+//////////////////////////////////////////////////////////////////////////////
 // Generate a Deme of the specified size with all-random chromosomes.
 // Also receives a mutation rate in the range [0-1].
-// Also seeds the generator idk if this is important but i added it
-Deme::Deme(const Cities* cities_ptr, unsigned pop_size, double mut_rate){
-	for(unsigned i = 0; i < pop_size; ++i){
-		Chromosome* chromosome_ptr = new Chromosome(cities_ptr);
-		pop_.push_back(chromosome_ptr);
-		mut_rate_ = mut_rate;
-	}
-	std::default_random_engine generator(std::chrono::system_clock::now().time_since_epoch().count());
-	generator_ = generator;
+Deme::Deme(const Cities* cities_ptr, unsigned pop_size, double mut_rate)
+ : pop_(pop_size), mut_rate_(mut_rate), generator_(rand())
+{
+  // Create random Chromosomes and put into population vector
+  for (auto& cp : pop_) {
+    cp = new Chromosome(cities_ptr);
+  }
 }
 
 // Clean up as necessary
-Deme::~Deme(){
-	for(Chromosome* chromosome_ptr : pop_){
-		delete chromosome_ptr;
-	}
+Deme::~Deme()
+{
+  for (auto cp : pop_) {
+    delete cp;
+  }
 }
 
+//////////////////////////////////////////////////////////////////////////////
 // Evolve a single generation of new chromosomes, as follows:
 // We select pop_size/2 pairs of chromosomes (using the select() method below).
 // Each chromosome in the pair can be randomly selected for mutation, with
@@ -44,63 +40,67 @@ Deme::~Deme(){
 // Then, the pair is recombined once (using the recombine() method) to generate
 // a new pair of chromosomes, which are stored in the Deme.
 // After we've generated pop_size new chromosomes, we delete all the old ones.
-void Deme::compute_next_generation(){
-	std::vector< std::pair<Chromosome*,Chromosome*> > chrom_pairs;
-	for(vec_size_t i = 0; i < pop_.size() / 2; i++){
-		chrom_pairs.push_back(std::pair<Chromosome*, Chromosome*>(select_parent(), select_parent()));
-	}
-	for(std::pair<Chromosome*, Chromosome*> pair : chrom_pairs){
-		mut_decider(frac(generator_), pair.first, mut_rate_);
-		mut_decider(frac(generator_), pair.second, mut_rate_);
-		pair = pair.first->recombine(pair.second);
-		pop_.push_back(pair.first);
-		pop_.push_back(pair.second);
-	}
-	int half_pop_size = pop_.size() / 2;
-	for(int i = 0; i < half_pop_size; i++){
-		delete pop_[0];
-		pop_.erase(pop_.begin());
-	}
+void Deme::compute_next_generation()
+{
+  auto newpop = pop_;
+  assert(pop_.size() % 2 == 0 && "Even population size required!");
+
+  for (unsigned i = 0; i < pop_.size(); ) {
+    auto p1 = select_parent();
+    auto p2 = select_parent();
+
+    static std::uniform_real_distribution<> dist(0.0, 1.0);
+    if (dist(generator_) <= mut_rate_) {
+      p1->mutate();
+    }
+    if (dist(generator_) <= mut_rate_) {
+      p2->mutate();
+    }
+
+    auto children = p1->recombine(p2);
+    newpop[i++] = children.first;
+    newpop[i++] = children.second;
+  }
+
+  for (auto cp : pop_) {
+    delete cp;
+  }
+  std::swap(pop_, newpop);
 }
 
-Chromosome* mut_decider(double rand, Chromosome* chromosome_ptr, double mut_rate){
-	if(rand < mut_rate){
-		chromosome_ptr->mutate();
-	}
-	return chromosome_ptr;
-}
-
+//////////////////////////////////////////////////////////////////////////////
 // Return a copy of the chromosome with the highest fitness.
-// ^ This is literally impossible, the chromosome.hh implementation we were given deletes the copy and assignment constructor. I'm going with the moodle instructions, which say to return a pointer to the best chromosome.
-const Chromosome* Deme::get_best() const{
-	Chromosome* best = pop_[0];
-	if(pop_.size() > 1){
-		double best_fitness = best->get_fitness();
-		for(vec_size_t i = 1; i < pop_.size(); ++i){
-			if(pop_[i]->get_fitness() > best_fitness){
-				best = pop_[i];
-				best_fitness = best->get_fitness();
-			}
-		}
-	}
-	assert(best);
-	return best;
+const Chromosome* Deme::get_best() const
+{
+  assert(!pop_.empty());
+  return *std::max_element(pop_.cbegin(), pop_.cend(), [](auto cp1, auto cp2){
+      return cp1->get_fitness() < cp2->get_fitness(); });
 }
 
+//////////////////////////////////////////////////////////////////////////////
 // Randomly select a chromosome in the population based on fitness and
 // return a pointer to that chromosome.
-Chromosome* Deme::select_parent(){
-	unsigned fit_sum = 0;
-	for(Chromosome* chrom : pop_){
-		fit_sum += chrom->get_fitness();
-	}
-	unsigned long selector = generator_() & fit_sum;
-	unsigned long fit_check = 0;
-	int i = 0;
-	while(fit_check < selector){
-		fit_check += pop_[i]->get_fitness();
-		++i;
-	}
-	++i;
-	return pop_[i];
+// Uses roulette-wheel selection
+Chromosome* Deme::select_parent()
+{
+  // Figure out what the total sum of fitness in pop_ is:
+  const double total_fitness = std::accumulate(pop_.cbegin(), pop_.cend(), 0.,
+      [](double sum, auto cp){ return sum + cp->get_fitness(); });
+
+  // Pick a random fitness sum value to stop the wheel at:
+  static std::uniform_real_distribution<> dist(0.0, 1);
+  const double threshold = total_fitness * dist(generator_);
+
+  // Now, find the first chromosome whose partial sum of fitness exceeds threshold:
+  double fit_sum = 0.; // Total fitness so far
+
+  const auto it = std::find_if(pop_.cbegin(), pop_.cend(), [&](auto cp) {
+        fit_sum += cp->get_fitness();
+        return fit_sum >= threshold;
+   });
+  assert(it != pop_.cend());
+
+  return *it;
 }
+
+
