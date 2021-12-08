@@ -18,18 +18,18 @@
 Deme::Deme(const Cities* cities_ptr, unsigned pop_size, double mut_rate)
  : pop_(pop_size), mut_rate_(mut_rate), generator_(rand())
 {
-  // Create random Chromosomes and put into population vector
-  for (auto& cp : pop_) {
-    cp = new Chromosome(cities_ptr);
-  }
+	// Create random Chromosomes and put into population vector
+	for (auto& cp : pop_) {
+		cp = new Chromosome(cities_ptr);
+	}
 }
 
 // Clean up as necessary
 Deme::~Deme()
 {
-  for (auto cp : pop_) {
-    delete cp;
-  }
+	for (auto cp : pop_) {
+		delete cp;
+	}
 }
 
 //////////////////////////////////////////////////////////////////////////////
@@ -42,30 +42,30 @@ Deme::~Deme()
 // After we've generated pop_size new chromosomes, we delete all the old ones.
 void Deme::compute_next_generation()
 {
-  auto newpop = pop_;
-  assert(pop_.size() % 2 == 0 && "Even population size required!");
+	auto newpop = pop_;
+	assert(pop_.size() % 2 == 0 && "Even population size required!");
 
-  for (unsigned i = 0; i < pop_.size(); ) {
-    auto p1 = select_parent();
-    auto p2 = select_parent();
+	for (unsigned i = 0; i < pop_.size(); ) {
+		auto p1 = select_parent();
+		auto p2 = select_parent();
 
-    static std::uniform_real_distribution<> dist(0.0, 1.0);
-    if (dist(generator_) <= mut_rate_) {
-      p1->mutate();
-    }
-    if (dist(generator_) <= mut_rate_) {
-      p2->mutate();
-    }
+		static std::uniform_real_distribution<> dist(0.0, 1.0);
+		if (dist(generator_) <= mut_rate_) {
+			p1->mutate();
+		}
+		if (dist(generator_) <= mut_rate_) {
+			p2->mutate();
+		}
 
-    auto children = p1->recombine(p2);
-    newpop[i++] = children.first;
-    newpop[i++] = children.second;
-  }
+		auto children = p1->recombine(p2);
+		newpop[i++] = children.first;
+		newpop[i++] = children.second;
+	}
 
-  for (auto cp : pop_) {
-    delete cp;
-  }
-  std::swap(pop_, newpop);
+	for (auto cp : pop_) {
+	delete cp;
+	}
+	std::swap(pop_, newpop);
 }
 
 //////////////////////////////////////////////////////////////////////////////
