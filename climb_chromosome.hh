@@ -12,22 +12,23 @@ class ClimbChromosome : public Chromosome
   ClimbChromosome(const Cities* cities_ptr);
 
   void mutate() override;
+  
+  //helper functions to make mutate() less clunky
+  friend void swap_up(int p);
+  friend void swap_down(int p);
 
   ClimbChromosome* clone() const override
   {
     return new ClimbChromosome(*this);
   }
 
-  std::pair<ClimbChromosome*, ClimbChromosome*> recombine(const ClimbChromosome* other);
+  //std::pair<ClimbChromosome*, ClimbChromosome*> recombine(const ClimbChromosome* other);
 
   private:
-  virtual ClimbChromosome*
+  /*virtual ClimbChromosome*
   create_crossover_child(const ClimbChromosome* parent1,
                          const ClimbChromosome* parent2,
                          unsigned begin,
                          unsigned end) const;
-  //helper functions to make mutate() less clunky
-  void swap_up(int p);
-  void swap_down(int p);
-
+                         */
 };
