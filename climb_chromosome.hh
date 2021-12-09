@@ -8,6 +8,7 @@
 
 class ClimbChromosome : public Chromosome
 {
+  ClimbChromosome(const Cities* cities_ptr);
 
   void mutate() override;
 

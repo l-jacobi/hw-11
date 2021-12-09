@@ -3,6 +3,11 @@
 #include <algorithm>
 #include <cassert>
 #include <vector>
+#include <utility>
+
+ClimbChromosome::ClimbChromosome(const Cities* cities_ptr)
+ : Chromosome(cities_ptr)
+{}
 
 bool my_compare(ClimbChromosome* a, ClimbChromosome* b)
 {

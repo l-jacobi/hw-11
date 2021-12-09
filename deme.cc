@@ -4,7 +4,7 @@
  */
 
 #include "cities.hh"
-#include "chromosome.hh"
+#include "climb_chromosome.hh"
 #include "deme.hh"
 
 #include <algorithm>
