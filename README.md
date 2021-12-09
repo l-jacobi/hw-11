@@ -24,7 +24,7 @@ Lots of bug fixes in the ClimbChromosome and Makefile, as well as the test_demet
 
 Rebecca: Override mutation operator
 ===============================
-This was fairly simple. I changed `clone()` to return a new `ClimbChromosome*`, and changed `mutate()` to behave as follows:
+Changed `clone()` to return a new `ClimbChromosome*`, and changed `mutate()` to behave as follows:
 - Create two new clones, `option_2` and `option_3`.
 - Generate a random point p between 0 and N-1, with N being the size of the ordering permutation.
 - Pass `option_2` and `option_3` to two helper functions, `swap_down` and `swap_up` respectively, which check the various conditions necessary and perform the corresponding swap.
