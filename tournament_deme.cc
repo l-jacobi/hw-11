@@ -27,11 +27,19 @@ Chromosome* TournamentDeme::select_parent(){
 	}
 	//get the best
 	while(tournament.size() != 1){
+		/*
 		for(auto it = tournament.begin(); it != tournament.end(); ){
 			if((*it)->get_fitness() > (*(it + 1))->get_fitness()){
 				tournament.erase(it);
 			}else{
 				tournament.erase(it + 1);
+			}
+		}*/
+		for(long unsigned i = 0; i < tournament.size(); ++i){
+			if(tournament[i]->get_fitness() > tournament[i+1]->get_fitness()){
+				tournament.erase(tournament.begin() + i);
+			}else{
+				tournament.erase(tournament.begin() + i + 1);
 			}
 		}
 	}
