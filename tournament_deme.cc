@@ -15,11 +15,11 @@ TournamentDeme::~TournamentDeme(){}
 * Take the first pair in the set of P parents and discard the parent with the lower fitness of the two.
 * Do the same for the next pair, and so forth. You should have P/2 parents in the resulting set.
 * Repeat the last two steps until you’re left with only one parent.*/
-Chromosome* TournamentDeme::select_parent(){
+ClimbChromosome* TournamentDeme::select_parent(){
 	std::uniform_int_distribution<> log_max_tourney_size(1, std::log2(pop_.size()));
 	int tourney_size = std::pow(2, log_max_tourney_size(generator_));
 
-	std::vector<Chromosome*> tournament(tourney_size);
+	std::vector<ClimbChromosome*> tournament(tourney_size);
 	std::uniform_int_distribution<> random_chrom(0, pop_.size() - 1);
 	//fill with random chromosomes
 	for(int i = 0; i < tourney_size; ++i){

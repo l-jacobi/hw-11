@@ -12,5 +12,5 @@ class TournamentDeme: public Deme{
 
 	protected:
 		// Randomly select a chromosome in the population and return a pointer to that chromosome.
-		virtual Chromosome* select_parent();
+		virtual ClimbChromosome* select_parent();
 };
