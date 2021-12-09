@@ -25,7 +25,7 @@ ClimbChromosome::mutate() //override?
 
   std::vector<ClimbChromosome*> options({this, option_2, option_3});
 
-  ClimbChromosome* best = std::max_element(options.begin(), options.end(), my_compare);
+  ClimbChromosome* best = *std::max_element(options.begin(), options.end(), my_compare);
 
   //if the original is best, compiler will basically ignore this line
   //otherwise it should update our permutation to match the best one
