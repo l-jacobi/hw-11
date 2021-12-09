@@ -9,7 +9,11 @@ TournamentDeme::TournamentDeme(const Cities* cities_ptr, unsigned pop_size, doub
 	generator_ = generator;
 }
 
-TournamentDeme::~TournamentDeme(){}
+TournamentDeme::~TournamentDeme(){
+	for (auto cp : pop_) {
+		delete cp;
+	}
+}
 
 /*	* Select P parents at random, where P is some constant power of two that you choose (no bigger than the population size).
 * Take the first pair in the set of P parents and discard the parent with the lower fitness of the two.

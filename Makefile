@@ -15,4 +15,4 @@ tsp_demetourney_test: tsp_demetourney_test.o chromosome.o deme.o tournament_deme
 	$(CXX) $(CXXFLAGS) $(OPTFLAGS) -c -o $@ $<
 
 clean:
-	rm -rf *.o tsp
+	rm -rf *.o tsp tsp_demetourney_test
