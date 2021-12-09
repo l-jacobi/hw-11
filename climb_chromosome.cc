@@ -50,7 +50,7 @@ void ClimbChromosome::swap_down(int p)
   std::swap(order_[p], order_[pos_2]);
 }
 
-std::pair<ClimbChromosome*, ClimbChromosome*>
+/*std::pair<ClimbChromosome*, ClimbChromosome*>
 ClimbChromosome::recombine(const ClimbChromosome* other)
 {
   assert(is_valid());
@@ -99,7 +99,7 @@ ClimbChromosome::create_crossover_child(const ClimbChromosome* p1, const ClimbCh
 
   assert(child->is_valid());
   return child;
-}
+}*/
 
 void ClimbChromosome::swap_up(int p)
 {
