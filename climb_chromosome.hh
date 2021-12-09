@@ -16,8 +16,9 @@ class ClimbChromosome : public Chromosome
     return new ClimbChromosome(*this);
   }
 
+  private:
   //helper functions to make mutate() less clunky
-  friend void swap_up(ClimbChromosome* chromo, int p);
-  friend void swap_down(ClimbChromosome* chromo, int p);
+  void swap_up(int p);
+  void swap_down(int p);
 
 };
